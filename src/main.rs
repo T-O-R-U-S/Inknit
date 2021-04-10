@@ -94,6 +94,46 @@ fn main() -> std::io::Result<()> {
     "",
   );
 
+  let mut packages:Vec<String> = vec![];
+
+  let external_imports = replace_input("Does your project use additional packages? [y/N]", "N");
+
+  if &external_imports.to_ascii_uppercase() == "Y" {
+    println!(
+      "{}",
+      style("Type in END to stop adding packages\n").yellow()
+    );
+    println!("{}", style("Add packages in the format of \"package\":\"version\",\nsimilar to standard JSON structure.\n").yellow());
+    loop {
+      let package_query = query_user("Add:\n")?;
+      // & Break out if user input == END
+      if &package_query.to_ascii_uppercase() == "END" {
+        break;
+      }
+
+      packages.push(format!("   {}", package_query));
+
+      // Put into one value because packages.len() can't be borrowed twice
+      let len = packages.len();
+      // 1st borrow of 'packages'
+      if len > 1 {
+        println!("{}", len-2);
+        // 2nd borrow of 'packages' (Isn't possible)
+        packages[len-2] = format!("{},", packages[len-2]);
+        continue
+      }
+    }
+  }
+
+  // & Convert packages into dependencies: { self }
+  let packages = format!(
+    "
+  \"dependencies\": {{
+{}
+  }}",
+    packages.join("\n")
+  );
+
   let mut file_out = File::create("package.json")?;
 
   let json_out = format!(
@@ -107,20 +147,10 @@ fn main() -> std::io::Result<()> {
   "author": "{}",
   "version": "{}",
   "license": "{}",
-  "keywords":[{}]
+  "keywords":[{}],{}
 }}"#,
-    project_name, entry_point, description, test, authors, version, license, keywords
+    project_name, entry_point, description, test, authors, version, license, keywords, packages
   );
-
-  let external_imports = replace_input
-  (
-    "Does your project use additional packages? [y/N]", 
-    "N"
-  );
-
-  if &external_imports.to_ascii_uppercase() == "Y" {
-    println!("Hello world!");
-  }
 
   println!("Data to write to package.json: {}", json_out);
   let confirmation = replace_input("Confirm? [Y/n]", "Y");
@@ -138,7 +168,7 @@ fn main() -> std::io::Result<()> {
 fn query_user(query: &str) -> std::io::Result<String> {
   // ~ standout = Standard Out
   let mut standout = String::new();
-  print!("{} ", style(&query).cyan());
+  print!("{} ", style(&query).blue());
   std::io::stdout().flush()?;
   stdin().read_line(&mut standout)?;
   Ok(String::from(standout.trim()))
