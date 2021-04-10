@@ -4,6 +4,8 @@ use std::{
   io::{stdin, Write},
 };
 
+use console::style;
+
 use regex::Regex;
 
 // ~ fn replace_input(cli_prompt: &str, if_prompt_empty: &str) -> String
@@ -25,16 +27,13 @@ fn main() -> std::io::Result<()> {
         .args(&["/C", cmd_format])
         .status()
         .expect("Failed to execute npx degit");
-    } else {
-      std::process::Command::new(
-        "sh"
-      )
-        .args(&["-c", cmd_format])
-        .status()
-        .expect("Failed to execute npx degit");
-      
+      return Ok(());
     }
-    println!("Cloning repo...");
+    std::process::Command::new("sh")
+      .args(&["-c", cmd_format])
+      .status()
+      .expect("Failed to execute npx degit");
+    println!("{}", style("Cloned repo without issues! ✅").green());
     return Ok(());
   }
 
@@ -71,7 +70,10 @@ fn main() -> std::io::Result<()> {
     "Specify a test for your package:",
     "echo \\\"No test specified\\\" && exit 1",
   );
-  let keywords = replace_input("Keywords (split by comma, enclose each keyword in \"\")", "");
+  let keywords = replace_input(
+    "Keywords (split by comma, enclose each keyword in \"\")",
+    "",
+  );
 
   let mut file_out = File::create("package.json")?;
 
@@ -91,15 +93,12 @@ fn main() -> std::io::Result<()> {
     project_name, entry_point, description, test, authors, version, license, keywords
   );
 
-  println!(
-      "Data to write to package.json: {}",
-      json_out
-  );
+  println!("Data to write to package.json: {}", json_out);
   let confirmation = replace_input("Confirm? [Y/n]", "Y");
 
   if confirmation.to_ascii_uppercase() != String::from("Y") {
     println!("Cancelling operation");
-    return Ok(())
+    return Ok(());
   }
 
   file_out.write_all(json_out.as_bytes())?;
@@ -110,7 +109,7 @@ fn main() -> std::io::Result<()> {
 fn query_user(query: &str) -> std::io::Result<String> {
   // ~ standout = Standard Out
   let mut standout = String::new();
-  print!("{} ", query);
+  print!("{} ", style(&query).cyan());
   std::io::stdout().flush()?;
   stdin().read_line(&mut standout)?;
   Ok(String::from(standout.trim()))
