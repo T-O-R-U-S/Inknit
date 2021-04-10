@@ -29,8 +29,7 @@ fn main() -> std::io::Result<()> {
       std::process::Command::new(
         "sh"
       )
-        .arg("-c")
-        .arg(cmd_format)
+        .args(&["-c", cmd_format])
         .status()
         .expect("Failed to execute npx degit");
       
