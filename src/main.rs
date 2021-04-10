@@ -120,7 +120,6 @@ fn main() -> std::io::Result<()> {
         println!("{}", len-2);
         // 2nd borrow of 'packages' (Isn't possible)
         packages[len-2] = format!("{},", packages[len-2]);
-        continue
       }
     }
   }
