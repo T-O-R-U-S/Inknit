@@ -1,0 +1,8 @@
+# DUH (Don't Use Harmfully) license v0.1 (by TORUS on Github.io)
+The DUH license is a basic license. It boils down to 5 rules:
+
+1. This software comes with ABSOLUTELY NO WARRANTY, EXPLICIT OR IMPLICIT -- to the extent of applicable law. Anything you do is purely AT YOUR OWN RISK.
+2. You may not use this software to harm others in any way, shape and/or, directly or indirectly. This includes surveillance and general tracking on the web
+3. You may not redistribute this software's binaries/source code on any website other than the one on which it was originally uploaded. You may only share a link to the source code. This does not apply to forks of this project/other __OPEN-SOURCE__ projects that may use this code.
+4. Any major/active contributors to the project must also be credited in the software (Extension of term 3)
+5. Any projects that fork this code are not subject to term 3 and 4, however the projects that do fork this MUST be open-sourced -- they must also give credit at the top of the file if it remains unmodified. (Modifications that do not change the core functions done by the code (i.e renaming variable names/adding whitespace) are not accepted as modifications)
