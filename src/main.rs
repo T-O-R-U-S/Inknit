@@ -11,28 +11,47 @@ use regex::Regex;
 // ~ fn replace_input(cli_prompt: &str, if_prompt_empty: &str) -> Result<String>
 
 fn main() -> std::io::Result<()> {
+  // !? I can't call current_dir() directly, otherwise Rust throws an error.
+  // !? I have placed it into this variable to fix this.
   let folder_name = current_dir()?;
   let nfolder = folder_name.to_str().unwrap().split("/");
   let folder_name =
-    String::from(nfolder.collect::<Vec<&str>>().pop().unwrap()).to_ascii_lowercase();
-  let import_repo = replace_input("Do you want to import a project? [y/N]", "N");
+    // ~ Current directory name to lowercase
+    String::from(
+      nfolder.
+      collect::<Vec<&str>>()
+      .pop()
+      .unwrap()
+    )
+    .to_ascii_lowercase();
+  // ^ nfolder gets moved, so does not need to be dropped directly
+  // ^ as Rust does that automatically
+  /*
+    Ok... so the code above takes the split iterable object, converts it into an &str array.
+    then it takes the last folder that it finds from the iterable object to get the current
+    directory and then converts it into lowercase to be inline with nodejs standards (all
+    names must be lowercase) and I know this is awful practice but I wasn't about to split
+    this into several variables and lines
+  */
+  let import_repo = replace_input("Do you want to import a project (npx degit)? [y/N]", "N");
+  // * Guard clause -- executes alternate code when the user wants to import a project
   if import_repo.to_ascii_uppercase() == "Y" {
     let project_name = replace_input("What is your project name?", &folder_name);
     let repo_name = query_user("What is the repository directory?").unwrap();
 
     let cmd_format = &format!("npx degit {} {}", repo_name, project_name);
-
+    // & Executes using different shell depending on current OS
     if cfg!(target_os = "windows") {
       std::process::Command::new("cmd")
         .args(&["/C", cmd_format])
         .status()
         .expect("Failed to execute npx degit");
-      return Ok(());
+    } else {
+      std::process::Command::new("sh")
+        .args(&["-c", cmd_format])
+        .status()
+        .expect("Failed to execute npx degit");
     }
-    std::process::Command::new("sh")
-      .args(&["-c", cmd_format])
-      .status()
-      .expect("Failed to execute npx degit");
     println!("{}", style("Cloned repo without issues! ✅").green());
     return Ok(());
   }
@@ -93,11 +112,21 @@ fn main() -> std::io::Result<()> {
     project_name, entry_point, description, test, authors, version, license, keywords
   );
 
+  let external_imports = replace_input
+  (
+    "Does your project use additional packages? [y/N]", 
+    "N"
+  );
+
+  if &external_imports.to_ascii_uppercase() == "Y" {
+    println!("Hello world!");
+  }
+
   println!("Data to write to package.json: {}", json_out);
   let confirmation = replace_input("Confirm? [Y/n]", "Y");
 
   if confirmation.to_ascii_uppercase() != String::from("Y") {
-    println!("Cancelling operation");
+    println!("{}", style("Cancelling operation").red());
     return Ok(());
   }
 
