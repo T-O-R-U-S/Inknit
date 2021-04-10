@@ -8,7 +8,7 @@ use console::style;
 
 use regex::Regex;
 
-// ~ fn replace_input(cli_prompt: &str, if_prompt_empty: &str) -> String
+// ~ fn replace_input(cli_prompt: &str, if_prompt_empty: &str) -> Result<String>
 
 fn main() -> std::io::Result<()> {
   let folder_name = current_dir()?;
